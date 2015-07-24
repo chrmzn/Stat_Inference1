@@ -77,7 +77,7 @@ After reading the [original study][1] (Page 499) it was interesting to note a fe
     * They ignored the 2.0mg dosage of orange juice as the data suggested there was a ceiling at 2.0mg of Vitamin C. See [figure 8](#figure8)
     * *Note*: This is a reproduction of a graph from [Page 501][1] of the original paper.
     * This same behaviour is demonstrated in [figure 3](#figure3) where the distributions for the 2.0mg dosages are very similar.
-* While we havent added the data here performing a two-sided t-test on the method of delivery acutally fails to reject the null hypothesis. As we exploratory analysis suggested that there wasn't just a difference but that one had a greater effect than the other we chose a one-sided test.
+* While we havent added the data here, performing a two-sided t-test on the method of delivery acutally fails to reject the null hypothesis. As the exploratory analysis suggested that there wasn't just a difference but that one had a greater effect than the other we chose a one-sided test.
 
 ------
 
