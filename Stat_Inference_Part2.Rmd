@@ -47,8 +47,8 @@ Exploring further into each factor from [figure 4](#figure4) and [5](#figure5) f
 
 Our hypothesis is that the difference in average odontoblast length between those dosed with orange juice is greater from those given ascorbic acid
 
-$$H_{o} := \mu_{oj} - \mu_{aa} = 0 $$
-$$H_{a} := \mu_{oj} - \mu_{aa} > 0 $$
+$$H_{o} : \mu_{oj} - \mu_{aa} = 0 $$
+$$H_{a} : \mu_{oj} - \mu_{aa} > 0 $$
 
 When we perform a [two-sample one-sided t-test](#figure6) on the difference in length of odontoblasts given the two different delivery methods we cannot say to a 95% confidence interval of 0.4982 to Inf. In this instance, given a 95% confidence interval, we can successfully reject the null hypothesis and accept our alternative that orange juice has a greater effect on odontoblast length than ascorbic acid.
 
@@ -58,8 +58,8 @@ It should also be noted that in this analysis we have specified that the varianc
 
 Our hypothesis in this instance is that the average odontoblast length between those given 0.5mg of Vitamin C is less than those given 2.0mg
 
-$$H_{o} := \mu_{0.5} - \mu_{2.0} = 0 $$
-$$H_{a} := \mu_{0.5} - \mu_{2.0} < 0 $$
+$$H_{o} : \mu_{0.5} - \mu_{2.0} = 0 $$
+$$H_{a} : \mu_{0.5} - \mu_{2.0} < 0 $$
 
 For our two-sample t-test on the variance in dosage we select the lowest and highest dosage levels, 0.5 and 2.0mg respectively. Similar to before we perform a [two-sample one-sided t-test](#figure7) on the difference in odontoblast length between our dosage levels and we find that our 95% confidence intervals are from -Inf to -13.279. 
 
@@ -71,12 +71,13 @@ Similar to before this assumes that each sample is iid normal and that each has 
 
 After reading the [original study][1] (Page 499) it was interesting to note a few points that aren't mentioned in the help information for this dataset.
 
-* The was an equal split in the sex of the Guinea Pigs and that this could be neglected
-* The original aim of the experiment was to determine whether the antiscorbutic activity of orange juice was greater than that of the ascorbic acid alone
-* They concluded that there was a difference between the dosage of Orange Juice and Ascorbic Acid alone 
+* The was an equal split in the sex of the Guinea Pigs and that this could be neglected.
+* The original aim of the experiment was to determine whether the antiscorbutic activity of orange juice was greater than that of the ascorbic acid alone.
+* They concluded that there was a difference between the dosage of Orange Juice and Ascorbic Acid alone.
     * They ignored the 2.0mg dosage of orange juice as the data suggested there was a ceiling at 2.0mg of Vitamin C. See [figure 8](#figure8)
-    * *Note*: This is a reproduction of a graph from [Page 501][1] of the original paper
-    * This same behaviour is demonstrated in [figure 3](#figure3) where the distributions for the 2.0mg dosages are very similar
+    * *Note*: This is a reproduction of a graph from [Page 501][1] of the original paper.
+    * This same behaviour is demonstrated in [figure 3](#figure3) where the distributions for the 2.0mg dosages are very similar.
+* While we havent added the data here performing a two-sided t-test on the method of delivery acutally fails to reject the null hypothesis. As we exploratory analysis suggested that there wasn't just a difference but that one had a greater effect than the other we chose a one-sided test.
 
 ------
 
