@@ -1,0 +1,171 @@
+---
+title: "Central Limit Theorem and the Exponential Distribution"
+author: "Chris O'Brien"
+date: "13 June 2015"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+---
+
+## Overview
+
+In this analysis we set out to investigate the Exponential Distribution ([Further Info][1]) and how samples pulled from the distribution can help us understand the theoretical mean and variance. 
+
+We also investigate how the means of our samples are distributed, whether they are normally distributed and how this relates to the Central Limit Theorem. 
+
+## Simulations
+
+In order to really test out the assumptions of the Central Limit Theorem and Law of Large Numbers we ran simulations taking 10, 1000 and 100000 of 40 samples from the Exponential Distribution.
+
+We also take a cumulative mean over 4000 samples to see how the sample mean varies as we add more samples to our mean. 
+
+We should expect to see that as we increase the number of samples that we get a better estimation of the theoretical mean and variance.
+
+## Sample Mean versus Theoretical Mean
+
+We know that the theoretical mean of the exponential distribution is $\lambda^{-1}$, as our simulations the choice of lambda was 0.2 the theoretical mean should be 5.
+
+*Theoretical Mean*
+$$0.2^{-1} = 5$$
+
+From [figure 1](#figure1) we can see that as we add samples and calculate the mean that it converges to the theoretical mean. This demonstrates the Law of Large Numbers that states as we increase the amount of samples their average will converge to the theoretical mean. 
+
+While mean of any one sample can vary wildly, as you can see from [figure 2](#figure2) depending on the sample size we have means ranging from 2.264 to 9.506, we know from the Central Limit Theorem that the distribution of our averages becomes that of standard normal and it's own mean is an estimator of the population mean (in this case the known theoretical mean of 5).
+
+From [figure 3](#figure3) we can see that as we increase the number of simulations that the density becomes closer to looking like standard normal (which we [touch on later](#Distribution) ). The mean of these averages also comes closer to the theoretical as we increase the number of simulations.
+
+Coming back to [figure 2](#figure2) we can see that the means from 10, 1000 and 100000 simulations are 4.899, 5.001 and 5.000 respectively, which confirms what we know of the Central Limit Theorem. 
+
+## Sample Variance versus Theoretical Variance
+
+Similar to our analysis of the theoretical mean we know that the theoretical variance can be calculated by $\lambda^{-2}$, again, as our choice of lambda in this instance was 0.2 the theoretical variance should be 25.
+
+*Theoretical Variance*
+$$0.2^{-2} = 25$$
+
+Each individual sample can have a wildly different value, sometimes quite far from the true variance. In our simulations from [figure 2](#figure2) we see that they can range anywhere from 3.678 to 161.756.
+
+The average of the sample variances is an estimator for the population variance and as with the example of the mean as we increase the number (see [figure 4](#figure4) ) of simulations of sample size 'n' we come closer to the true theoretical variance of 25.
+From [figure 2](#figure2) the average variance for 10, 1000 and 100000 simulations are 25.649, 25.463 and 25.009, almost exactly our theoretical value.
+
+Plotting the distributions of the variances we see again that as we add more simulations the distributions become closer and close to resembling standard normal.
+
+## Distribution {#Distribution}
+
+Our distribution in this instance is drawn from the Exponential Density that has a density function as shown in [figure 5](#figure5). Our averages of each sample are an estimator for the red line in this graph, the theoretical mean of 5. The distribution of our averages should lie around this number and so as we increase the numbers of sample of size 'n' (or 'n' for that matter) that we take our average distribution become more standard normal.
+
+The standard normal distribution is characterised by having $\mu = 0$ and $\sigma = 1$. We know from the Central Limit Theorem that as we increase our simulation count that the distribution of the average should become standard normal.
+
+From [figure 6](#figure6) we see that when we normalize our 100,000 simulations to 0, the standard deviations of the normalized values is 0.799 a value very close to 1.
+
+Plotting the density functions of our simulation counts against the standard normal distribution it is possible to see that the more simulations we add the closer we approach a standard normal distribution.
+
+******
+
+# Appendix
+
+```{r load_libraies, echo=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(data.table)
+source("http://peterhaschke.com/Code/multiplot.R")
+```
+
+## Simulation {#simulation}
+.
+```{r setup_data}
+# Start by setting the seed. This is important for reproducibility
+set.seed(100)
+lambda <- 0.2
+exp10m <- matrix(rexp(400, lambda), ncol = 40)
+exp10 <- data.table(mean=rowMeans(exp10m), 
+                    var=apply(exp10m, FUN=var, MARGIN = 1))
+exp1000m <- matrix(rexp(40000, lambda), ncol = 40)
+exp1000 <- data.table(mean=rowMeans(exp1000m), 
+                    var=apply(exp1000m, FUN=var, MARGIN = 1))
+exp100000m <- matrix(rexp(4000000, lambda), ncol = 40)
+exp100000 <- data.table(mean=rowMeans(exp100000m), 
+                     var=apply(exp100000m, FUN=var, MARGIN = 1))
+cumMeans<-data.table(mean=cumsum(rexp(4000,0.2))/(1:4000), samples=(1:4000))
+summaryFrame<-data.table(sim10mean=exp10$mean, sim10var=exp10$var,
+                         sim1000mean=exp1000$mean, sim1000var=exp1000$var,
+                         sim100000mean=exp100000$mean, sim100000var=exp100000$var)
+```
+
+## Sample Mean versus Theoretical Mean
+
+#### Figure 1 {#figure1}  
+.  
+```{r figure1,fig.height=2,echo=F}
+ggplot(cumMeans, aes(x=samples,y=mean)) + geom_line() + 
+    geom_hline(yintercept=5,color='red')
+```
+
+#### Figure 2 {#figure2}
+.  
+```{r figure2}
+summary(summaryFrame)
+```
+
+#### Figure 3 {#figure3}
+.  
+```{r figure_3,fig.height=3,echo=FALSE}
+meanDist<-data.table(mean=c(exp10$mean,exp1000$mean,exp100000$mean), 
+                     iterations=factor(c(rep(10,10),
+                                         rep(1000,1000),
+                                         rep(100000,100000))))
+ggplot(meanDist, aes(x=mean, fill=iterations)) + 
+    geom_density() + facet_grid(.~iterations) +
+    ggtitle('Distribution of averages vs. iteration count') +
+    geom_vline(xintercept=5, color='black', linetype='dotted')
+```
+
+## Sample Variance versus Theoretical Variance
+
+#### Figure 4 {#figure4}
+.  
+```{r figure_4,fig.height=3,echo=FALSE}
+varDist<-data.table(var=c(exp10$var,exp1000$var,exp100000$var), 
+                    iterations=factor(c(rep(10,10),
+                                         rep(1000,1000),
+                                         rep(100000,100000))))
+ggplot(varDist, aes(x=var, fill=iterations)) + 
+    geom_density() + facet_grid(.~iterations) +
+    ggtitle('Distribution of variances vs. iteration count') +
+    geom_vline(xintercept=25, color='black', linetype='dotted')
+```
+
+## Distribution
+
+#### Figure 5 {#figure5}
+.  
+```{r figure_5, fig.height=4,echo=FALSE}
+ggplot(data.table(exp100000m), aes(x=V1))+geom_density(aes(y=..density..)) +
+    ggtitle('Distribution of 100000 Random Exponentials') + labs('Value') +
+    geom_vline(xintercept=5,color='red',linetype='dotted')
+```
+
+#### Figure 6 {#figure6}
+.  
+```{r figure_6, fig.height=4,echo=FALSE}
+exp10 <- exp10 %>% mutate(normalized=mean-mean(mean))
+exp1000 <- exp1000 %>% mutate(normalized=mean-mean(mean))
+exp100000 <- exp100000 %>% mutate(normalized=mean-mean(mean))
+normDist<-data.table(normalizedMean=c(exp10$normalized,
+                                      exp1000$normalized,
+                                      exp100000$normalized), 
+                     iterations=factor(c(rep(10,10),
+                                         rep(1000,1000),
+                                         rep(100000,100000))))
+ggplot(normDist, aes(x=normalizedMean, fill=iterations)) + 
+    geom_density(aes(y=..density.., position="stack"), alpha=0.4) +
+    stat_function(fun = dnorm, color='red') + 
+    ggtitle('Standard Normal vs. Simulation Count')
+```
+
+
+[1]: https://en.wikipedia.org/wiki/Exponential_distribution

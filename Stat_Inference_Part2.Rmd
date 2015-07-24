@@ -1,0 +1,161 @@
+---
+title: "Vitamin C delivery impact on Odontoblast growth"
+author: "Chris O'Brien"
+date: "23 July 2015"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 3
+---
+
+## Synopsis
+
+In this report we aim to determine whether the dosage and delivery method of ascorbic acid (Vitamin C) has any impact on the length of odontoblasts (Teeth). This is an exploratory analysis and inference on the ToothGrowth dataset source from [C.I. Bliss (1952) *The Statistics of Bioassay*. Academic Press.][1] 
+
+Once we have loaded the data be perform a very basic transformation on the dosage column converting it to a factor as this represents discrete rather than continuous data. Our exploratory analysis helped us come to two hypotheses:
+
+1. That the method of delivery regardless of dosage impacts odontoblast length 
+2. The dosage of ascorbic acid regardless of delivery method impacts growth
+
+Applying a T test to our two hypotheses we find that both the method of delivery and the dosage between 0.5 and 2.0mg differences are statistically significant using a 95% confidence interval
+
+## Data Processing
+
+### Loading the data
+
+The data for this assignment was sourced from the datasets library available in the Base R packages.
+
+### Processing the data
+
+From [figure 1](#figure1) the only transformation we applied to the data was to convert the dosage level into a factor. As dosage represented 3 discrete values it made more sense to treat this as such rather than continuous values on a scale.
+
+## Exploratory analysis
+
+From [figure 2](#figure2) we can see from our dataset consists of three data points, the length of the odontoblast, the two methods of delivery and the three levels of ascorbic acid dosage
+
+Performing a complete break down of the two facets (dose and supp) from [figure 3](#figure3) it is hard to come to any real conclusions about the data other than possibly as dosage increases that the mean of the odontoblast lengths gets larger. 
+
+Exploring further into each factor from [figure 4](#figure4) and [5](#figure5) further, we certainly get a better feeling that there is a potential difference in the method of delivery and the dosage level.
+
+## Confidence testing
+
+### Method of delivery
+
+Our hypothesis is that the difference in average odontoblast length between those dosed with orange juice is greater from those given ascorbic acid
+
+$$H_{o} := \mu_{oj} - \mu_{aa} = 0 $$
+$$H_{a} := \mu_{oj} - \mu_{aa} > 0 $$
+
+When we perform a [two-sample one-sided t-test](#figure6) on the difference in length of odontoblasts given the two different delivery methods we cannot say to a 95% confidence interval of 0.4982 to Inf. In this instance, given a 95% confidence interval, we can successfully reject the null hypothesis and accept our alternative that orange juice has a greater effect on odontoblast length than ascorbic acid.
+
+It should also be noted that in this analysis we have specified that the variances are different as our assumptions for this analysis are that each sample is iid normal and have different means and variances.
+
+### Dosage
+
+Our hypothesis in this instance is that the average odontoblast length between those given 0.5mg of Vitamin C is less than those given 2.0mg
+
+$$H_{o} := \mu_{0.5} - \mu_{2.0} = 0 $$
+$$H_{a} := \mu_{0.5} - \mu_{2.0} < 0 $$
+
+For our two-sample t-test on the variance in dosage we select the lowest and highest dosage levels, 0.5 and 2.0mg respectively. Similar to before we perform a [two-sample one-sided t-test](#figure7) on the difference in odontoblast length between our dosage levels and we find that our 95% confidence intervals are from -Inf to -13.279. 
+
+Given our 95% confidence interval on the difference between two to means we can successfully reject our null hypothesis and accept the alternative that those given 0.5mg of Vitamin C have a smaller odontoblast length than those given 2.0mg
+
+Similar to before this assumes that each sample is iid normal and that each has different variances, which is why in our t-test we set that the variances are different. 
+
+## Further analysis
+
+After reading the [original study][1] (Page 499) it was interesting to note a few points that aren't mentioned in the help information for this dataset.
+
+* The was an equal split in the sex of the Guinea Pigs and that this could be neglected
+* The original aim of the experiment was to determine whether the antiscorbutic activity of orange juice was greater than that of the ascorbic acid alone
+* They concluded that there was a difference between the dosage of Orange Juice and Ascorbic Acid alone 
+    * They ignored the 2.0mg dosage of orange juice as the data suggested there was a ceiling at 2.0mg of Vitamin C. See [figure 8](#figure8)
+    * *Note*: This is a reproduction of a graph from [Page 501][1] of the original paper
+    * This same behaviour is demonstrated in [figure 3](#figure3) where the distributions for the 2.0mg dosages are very similar
+
+------
+
+# Appendix
+
+```{r load_libraries,echo=FALSE,message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(data.table)
+library(datasets)
+```
+
+## Data processing
+
+#### Figure 1 {#figure1}
+.  
+```{r data_processing}
+# As mentioned we mutate the dose into a factor to allow better comparisons
+tg <- data.table(ToothGrowth)
+tg <- tg %>% 
+    mutate(dose=factor(dose))
+```
+
+## Exploratory analysis
+
+#### Figure 2 {#figure2}
+.  
+```{r table_summary}
+summary(tg)
+```
+
+#### Figure 3 {#figure3}
+.  
+```{r figure_3,echo=F}
+ggplot(tg, aes(x=len, fill=supp)) + 
+    geom_density() + facet_grid(supp~dose) +
+    ggtitle('Tooth length (delivery method vs dosage)') +
+    labs(x='Length', y='Density')
+```
+
+#### Figure 4 {#figure4}
+.  
+```{r figure_4,echo=F,fig.height=3}
+ggplot(tg, aes(x=len, fill=supp)) + geom_density(alpha=0.2) +
+    ggtitle('Tooth length density by delivery method') +
+    labs(x='Length', y='Density')
+```
+
+#### Figure 5 {#figure5}
+.  
+```{r figure_5,echo=F,fig.height=3}
+ggplot(tg, aes(x=len, fill=dose)) + geom_density(alpha=0.2) +
+    ggtitle('Tooth length density by dosage of ascorbic acid (mg)') +
+    labs(x='Length', y='Density')
+```
+
+## Confidence testing
+
+#### Figure 6 {#figure6}
+.  
+```{r figure6}
+t.test(len ~ supp, data=tg, paired=F, var.equal=F, alternative = 'g')
+```
+
+#### Figure 7 {#figure7}
+.
+```{r figure7}
+tg1 <- tg %>% filter(dose %in% c(0.5,2.0))
+t.test(len ~ dose, data=tg1, paired=F, var.equal=F, alternative='l')
+```
+
+## Further analysis
+
+#### Figure 8 {#figure8}
+.  
+```{r figure8,echo=F}
+qplot(data=tg, dose, len, color=supp, stat="summary", fun.y=mean) +
+    labs(x='Mean Length of Odontoblast', y='Ascorbic Acid - mg/day') +
+    ggtitle('Length of Odontoblast vs. Dosage and Delivery Method')
+```
+
+[1]: http://krishikosh.egranth.ac.in/bitstream/1/22993/1/IVRI%20OB%202003.pdf
